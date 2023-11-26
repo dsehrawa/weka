@@ -4,6 +4,7 @@ import java.util.Random;
 import weka.classifiers.Evaluation;
 import weka.classifiers.trees.J48;
 import weka.core.DenseInstance;
+import weka.core.Instance;
 import weka.core.Instances;
 
 // Main class
@@ -55,6 +56,10 @@ public class GFG {
             for(int i=0;i<datasetInstances.size();i++) {
                 System.out.println("Actual:" + datasetInstances.get(i).classValue());
                 System.out.println("eval:" + evaluation.evaluateModelOnce(j48Classifier, datasetInstances.get(i)));
+                double[] attValues = datasetInstances.get(i).toDoubleArray();
+                Instance dataInstance = new DenseInstance(1.0, attValues);
+                dataInstance.setDataset(datasetInstances);
+                System.out.println("wow eval:" + evaluation.evaluateModelOnce(j48Classifier, dataInstance));
             }
         }
 
