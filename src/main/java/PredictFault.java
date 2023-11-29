@@ -33,7 +33,7 @@ public class PredictFault {
 
             // default underlying classifier is SMOreg (SVM) - we'll use
             // gaussian processes for regression instead
-            forecaster.setBaseForecaster(new NaiveBayes());
+            forecaster.setBaseForecaster(new LinearRegression());
 
             forecaster.getTSLagMaker().setTimeStampField("timestamp"); // date time stamp
             forecaster.getTSLagMaker().setMinLag(1);
