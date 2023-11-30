@@ -3,15 +3,13 @@ import java.io.*;
 import java.util.List;
 
 import org.joda.time.DateTime;
-import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.functions.LinearRegression;
 import weka.core.Instances;
-import weka.classifiers.functions.GaussianProcesses;
 import weka.classifiers.evaluation.NumericPrediction;
 import weka.classifiers.timeseries.WekaForecaster;
 import weka.filters.supervised.attribute.TSLagMaker;
 
-public class PredictFault {
+public class PredictPrinterRestart {
 
     public static void main(String[] args) {
         try {
@@ -19,7 +17,7 @@ public class PredictFault {
             // package
             String pathToWineData = weka.core.WekaPackageManager.PACKAGES_DIR.toString()
                     + File.separator + "timeseriesForecasting" + File.separator + "sample-data"
-                    + File.separator + "fault.arff";
+                    + File.separator + "printer_hourly.arff";
 
             // load the wine data
             Instances wine = new Instances(new BufferedReader(new FileReader(pathToWineData)));
@@ -29,7 +27,7 @@ public class PredictFault {
 
             // set the targets we want to forecast. This method calls
             // setFieldsToLag() on the lag maker object for us
-            forecaster.setFieldsToForecast("printer,vpn");
+            forecaster.setFieldsToForecast("printer_restart");
 
             // default underlying classifier is SMOreg (SVM) - we'll use
             // gaussian processes for regression instead
@@ -40,10 +38,10 @@ public class PredictFault {
             forecaster.getTSLagMaker().setMaxLag(12); // monthly data
 
             // add a month of the year indicator field
-            forecaster.getTSLagMaker().setAddMonthOfYear(true);
+//            forecaster.getTSLagMaker().setAddMonthOfYear(true);
 
             // add a quarter of the year indicator field
-            forecaster.getTSLagMaker().setAddQuarterOfYear(true);
+//            forecaster.getTSLagMaker().setAddQuarterOfYear(true);
 
             // build the model
             forecaster.buildForecaster(wine, System.out);
@@ -67,7 +65,7 @@ public class PredictFault {
             for (int i = 0; i < 12; i++) {
                 List<NumericPrediction> predsAtStep = forecast.get(i);
                 System.out.print(currentDt + " ");
-                for (int j = 0; j < 2; j++) {
+                for (int j = 0; j < 1; j++) {
                     NumericPrediction predForTarget = predsAtStep.get(j);
                     System.out.print("" + predForTarget.predicted() + " ");
                 }
