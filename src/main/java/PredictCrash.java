@@ -35,7 +35,7 @@ public class PredictCrash {
             forecaster.setBaseForecaster(new LinearRegression());
 
             forecaster.getTSLagMaker().setTimeStampField("crashtime"); // date time stamp
-            forecaster.getTSLagMaker().setPeriodicity(TSLagMaker.Periodicity.DAILY);
+            forecaster.getTSLagMaker().setPeriodicity(TSLagMaker.Periodicity.HOURLY);
             forecaster.getTSLagMaker().setMinLag(1);
             forecaster.getTSLagMaker().setMaxLag(24); // monthly data
 
@@ -58,9 +58,8 @@ public class PredictCrash {
 
             // forecast for 12 units (months) beyond the end of the
             // training data
-            List<List<NumericPrediction>> forecast = forecaster.forecast(12, System.out);
             DateTime currentDt = getCurrentDateTime(forecaster.getTSLagMaker());
-
+            List<List<NumericPrediction>> forecast = forecaster.forecast(12, System.out);
 
             // output the predictions. Outer list is over the steps; inner list is over
             // the targets
