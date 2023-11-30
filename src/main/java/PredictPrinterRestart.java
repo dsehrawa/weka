@@ -3,6 +3,7 @@ import java.io.*;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.joda.time.DurationFieldType;
 import weka.classifiers.functions.LinearRegression;
 import weka.core.Instances;
 import weka.classifiers.evaluation.NumericPrediction;
@@ -34,6 +35,7 @@ public class PredictPrinterRestart {
             forecaster.setBaseForecaster(new LinearRegression());
 
             forecaster.getTSLagMaker().setTimeStampField("timestamp"); // date time stamp
+            forecaster.getTSLagMaker().setPeriodicity(TSLagMaker.Periodicity.DAILY);
             forecaster.getTSLagMaker().setMinLag(1);
             forecaster.getTSLagMaker().setMaxLag(12); // monthly data
 
@@ -56,13 +58,12 @@ public class PredictPrinterRestart {
 
             // forecast for 12 units (months) beyond the end of the
             // training data
-            List<List<NumericPrediction>> forecast = forecaster.forecast(12, System.out);
-
             DateTime currentDt = getCurrentDateTime(forecaster.getTSLagMaker());
+            List<List<NumericPrediction>> forecast = forecaster.forecast(300, System.out);
 
             // output the predictions. Outer list is over the steps; inner list is over
             // the targets
-            for (int i = 0; i < 12; i++) {
+            for (int i = 0; i < 300; i++) {
                 List<NumericPrediction> predsAtStep = forecast.get(i);
                 System.out.print(currentDt + " ");
                 for (int j = 0; j < 1; j++) {
@@ -84,7 +85,7 @@ public class PredictPrinterRestart {
     }
 
     private static DateTime getCurrentDateTime(TSLagMaker lm) throws Exception {
-        return new DateTime((long)lm.getCurrentTimeStampValue());
+        return new DateTime((long)lm.getCurrentTimeStampValue()).withFieldAdded(DurationFieldType.days(),1);
     }
 
     private static DateTime advanceTime(TSLagMaker lm, DateTime dt) {
