@@ -3,6 +3,7 @@ import java.io.*;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import weka.classifiers.functions.LinearRegression;
 import weka.core.Instances;
 import weka.classifiers.functions.GaussianProcesses;
 import weka.classifiers.evaluation.NumericPrediction;
@@ -31,7 +32,7 @@ public class PredictCrash {
 
             // default underlying classifier is SMOreg (SVM) - we'll use
             // gaussian processes for regression instead
-            forecaster.setBaseForecaster(new GaussianProcesses());
+            forecaster.setBaseForecaster(new LinearRegression());
 
             forecaster.getTSLagMaker().setTimeStampField("crashtime"); // date time stamp
             forecaster.getTSLagMaker().setPeriodicity(TSLagMaker.Periodicity.DAILY);
