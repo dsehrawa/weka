@@ -16,12 +16,11 @@ public class PredictCrash {
         try {
             // path to the Australian wine data included with the time series forecasting
             // package
-            String pathToWineData = weka.core.WekaPackageManager.PACKAGES_DIR.toString()
-                    + File.separator + "timeseriesForecasting" + File.separator + "sample-data"
-                    + File.separator + "formatted_data_30-days-zscalar.arff";
+
+            InputStream isa = PredictCrash.class.getClassLoader().getResourceAsStream("sample-data/formatted_data_30-days_wfshell.arff");
 
             // load the wine data
-            Instances wine = new Instances(new BufferedReader(new FileReader(pathToWineData)));
+            Instances wine = new Instances(new BufferedReader(new InputStreamReader(isa)));
 
             // new forecaster
             WekaForecaster forecaster = new WekaForecaster();
@@ -36,8 +35,8 @@ public class PredictCrash {
 
             forecaster.getTSLagMaker().setTimeStampField("crashtime"); // date time stamp
             forecaster.getTSLagMaker().setPeriodicity(TSLagMaker.Periodicity.HOURLY);
-            forecaster.getTSLagMaker().setMinLag(1);
-            forecaster.getTSLagMaker().setMaxLag(24); // monthly data
+            forecaster.getTSLagMaker().setMinLag(12);
+            forecaster.getTSLagMaker().setMaxLag(36); // monthly data
 
 
             // add a month of the year indicator field
@@ -64,6 +63,7 @@ public class PredictCrash {
             // output the predictions. Outer list is over the steps; inner list is over
             // the targets
             for (int i = 0; i < 12; i++) {
+                currentDt = advanceTime(forecaster.getTSLagMaker(), currentDt);
                 List<NumericPrediction> predsAtStep = forecast.get(i);
                 System.out.print(currentDt + " ");
                 for (int j = 0; j < 1; j++) {
@@ -71,7 +71,6 @@ public class PredictCrash {
                     System.out.print("" + predForTarget.predicted() + " ");
                 }
                 System.out.println();
-                currentDt = advanceTime(forecaster.getTSLagMaker(), currentDt);
             }
 
             // we can continue to use the trained forecaster for further forecasting
