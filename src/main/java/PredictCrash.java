@@ -5,22 +5,25 @@ import java.util.List;
 import org.joda.time.DateTime;
 import weka.classifiers.functions.LinearRegression;
 import weka.core.Instances;
-import weka.classifiers.functions.GaussianProcesses;
 import weka.classifiers.evaluation.NumericPrediction;
 import weka.classifiers.timeseries.WekaForecaster;
 import weka.filters.supervised.attribute.TSLagMaker;
 
 public class PredictCrash {
 
+    public static final int NUMBER_OF_ITERATIONS = 24;
+    public static final int MIN_LAG = 12;
+    public static final int MAX_LAG = 36;
+
     public static void main(String[] args) {
         try {
-            // path to the Australian wine data included with the time series forecasting
+            // path to the Australian serviceToMonitor data included with the time series forecasting
             // package
 
             InputStream isa = PredictCrash.class.getClassLoader().getResourceAsStream("sample-data/formatted_data_30-days_wfshell.arff");
 
-            // load the wine data
-            Instances wine = new Instances(new BufferedReader(new InputStreamReader(isa)));
+            // load the serviceToMonitor data
+            Instances serviceToMonitor = new Instances(new BufferedReader(new InputStreamReader(isa)));
 
             // new forecaster
             WekaForecaster forecaster = new WekaForecaster();
@@ -35,8 +38,8 @@ public class PredictCrash {
 
             forecaster.getTSLagMaker().setTimeStampField("crashtime"); // date time stamp
             forecaster.getTSLagMaker().setPeriodicity(TSLagMaker.Periodicity.HOURLY);
-            forecaster.getTSLagMaker().setMinLag(12);
-            forecaster.getTSLagMaker().setMaxLag(36); // monthly data
+            forecaster.getTSLagMaker().setMinLag(MIN_LAG);
+            forecaster.getTSLagMaker().setMaxLag(MAX_LAG); // monthly data
 
 
             // add a month of the year indicator field
@@ -46,23 +49,23 @@ public class PredictCrash {
             forecaster.getTSLagMaker().setAddQuarterOfYear(true);
 
             // build the model
-            forecaster.buildForecaster(wine, System.out);
+            forecaster.buildForecaster(serviceToMonitor, System.out);
 
             // prime the forecaster with enough recent historical data
             // to cover up to the maximum lag. In our case, we could just supply
             // the 12 most recent historical instances, as this covers our maximum
             // lag period
-            forecaster.primeForecaster(wine);
+            forecaster.primeForecaster(serviceToMonitor);
 
 
             // forecast for 12 units (months) beyond the end of the
             // training data
             DateTime currentDt = getCurrentDateTime(forecaster.getTSLagMaker());
-            List<List<NumericPrediction>> forecast = forecaster.forecast(12, System.out);
+            List<List<NumericPrediction>> forecast = forecaster.forecast(NUMBER_OF_ITERATIONS, System.out);
 
             // output the predictions. Outer list is over the steps; inner list is over
             // the targets
-            for (int i = 0; i < 12; i++) {
+            for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
                 currentDt = advanceTime(forecaster.getTSLagMaker(), currentDt);
                 List<NumericPrediction> predsAtStep = forecast.get(i);
                 System.out.print(currentDt + " ");
